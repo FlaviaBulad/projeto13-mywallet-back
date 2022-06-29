@@ -1,15 +1,22 @@
 import express from "express";
 import chalk from "chalk";
+import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
+import bcrypt from "bcrypt";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
-const username = process.env.USER_NAME;
+app.use(cors());
+app.use(express.json());
 
-app.get("/test", (_, res) => {
-  res.send(`Hello, ${username}! the server is running on port ${PORT}.`);
+const PORT = process.env.PORT;
+
+const mongoClient = new MongoClient(process.env.MONGO_URI);
+let db;
+mongoClient.connect(() => {
+  db = mongoClient.db("my-wallet-api");
 });
 
 app.listen(process.env.PORT, () => {
