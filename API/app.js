@@ -1,11 +1,11 @@
 import express from "express";
 import chalk from "chalk";
-import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import cors from "cors";
 import joi from "joi";
 import { v4 as uuid } from "uuid";
+import db from "./db.js";
 
 dotenv.config();
 
@@ -14,15 +14,6 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGODB_URI;
-
-let db;
-const mongoClient = new MongoClient(MONGO_URI);
-
-mongoClient.connect(() => {
-  db = mongoClient.db("my-wallet-api");
-  console.log(chalk.magenta.bold("MongoDB connected"));
-});
 
 app.post("/sign-up", async (req, res) => {
   const user = req.body;
