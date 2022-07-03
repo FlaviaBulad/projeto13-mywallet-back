@@ -69,6 +69,7 @@ app.post("/login", async (req, res) => {
     const { email, password } = req.body;
 
     const user = await db.collection("users").findOne({ email });
+
     if (!user) return res.status(404).send("User not found");
 
     if (user && bcrypt.compareSync(password, user.password)) {
@@ -84,7 +85,7 @@ app.post("/login", async (req, res) => {
   }
 });
 
-// app.get("/logout", async (req, res) => {});
+app.get("/logout", async (req, res) => {});
 
 app.listen(PORT, () => {
   console.log(
