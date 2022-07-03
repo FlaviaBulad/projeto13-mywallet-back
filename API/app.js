@@ -1,10 +1,11 @@
-import express, { json } from "express";
+import express from "express";
 import chalk from "chalk";
 import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import cors from "cors";
 import joi from "joi";
+import { v4 as uuid } from "uuid";
 
 dotenv.config();
 
@@ -12,8 +13,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const PORT = process.env.PORT;
-const MONGO_URI = process.env.MONGO_URI;
+const token = uuid();
+
+const PORT = process.env.PORT || 5000;
+const MONGO_URI = process.env.MONGODB_URI;
 
 let db;
 const mongoClient = new MongoClient(MONGO_URI);
@@ -39,7 +42,7 @@ app.post("/sign-up", async (req, res) => {
   });
 
   const validation = signupSchema.validate(user, {
-    abortEarly: true,
+    abortEarly: false,
   });
 
   if (validation.error) {
@@ -48,17 +51,22 @@ app.post("/sign-up", async (req, res) => {
   }
 
   try {
-    const passwordHash = bcrypt.hashSync(user.password, 10);
+    const salt = 10;
+    const passwordHash = bcrypt.hashSync(user.password, salt);
 
-    await db.collection("users").insertOne({ ...user, password: passwordHash });
+    await db.collection("users").insertOne({
+      name: user.name,
+      email: user.email,
+      password: passwordHash,
+    });
 
-    res.sendStatus(201);
+    res.status(201).send("User created");
   } catch (error) {
-    res.status(500).send("Server error", error);
+    res.status(500).send("Server error:", error);
   }
 });
 
-app.post("/sign-in", async (req, res) => {
+app.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
   const user = await db.collection("users").findOne({ email });
@@ -70,7 +78,7 @@ app.post("/sign-in", async (req, res) => {
   }
 });
 
-app.listen(process.env.PORT, () => {
+app.listen(PORT, () => {
   console.log(
     chalk.green.bold(`Server running on port: http://localhost:${PORT}`)
   );
