@@ -13,8 +13,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const token = uuid();
-
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGODB_URI;
 
@@ -67,16 +65,26 @@ app.post("/sign-up", async (req, res) => {
 });
 
 app.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await db.collection("users").findOne({ email });
+    const user = await db.collection("users").findOne({ email });
+    if (!user) return res.status(404).send("User not found");
 
-  if (user && bcrypt.compareSync(password, user.password)) {
-    res.sendStatus(200);
-  } else {
-    res.sendStatus(401);
+    if (user && bcrypt.compareSync(password, user.password)) {
+      const token = uuid();
+      await db.collection("sessions").insertOne({ token, userId: user._id });
+      return res.send({ token, name: user.name });
+    } else {
+      return res.sendStatus(401);
+    }
+  } catch (error) {
+    console.log("Login error:", error);
+    return res.sendStatus(500);
   }
 });
+
+// app.get("/logout", async (req, res) => {});
 
 app.listen(PORT, () => {
   console.log(
