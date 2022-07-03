@@ -1,74 +1,12 @@
 import { Router } from "express";
-import bcrypt from "bcrypt";
-import joi from "joi";
-import { v4 as uuid } from "uuid";
-import db from "./../db.js";
+import { Login, Logout, signUp } from "../controllers/authController.js";
 
 const authRouter = Router();
 
-authRouter.post("/sign-up", async (req, res) => {
-  const user = req.body;
+authRouter.post("/sign-up", signUp);
 
-  const signupSchema = joi.object({
-    name: joi.string().min(1).required(),
-    email: joi.string().email().required(),
-    password: joi.string().min(3).max(15).required().label("Password"),
-    password_confirmation: joi
-      .any()
-      .equal(joi.ref("password"))
-      .required()
-      .label("Confirm password")
-      .options({ messages: { "any.only": "{{#label}} does not match" } }),
-  });
+authRouter.post("/login", Login);
 
-  const validation = signupSchema.validate(user, {
-    abortEarly: false,
-  });
-
-  if (validation.error) {
-    console.log(validation.error.details);
-    return res.sendStatus(422);
-  }
-
-  try {
-    const salt = 10;
-    const passwordHash = bcrypt.hashSync(user.password, salt);
-
-    await db.collection("users").insertOne({
-      name: user.name,
-      email: user.email,
-      password: passwordHash,
-    });
-
-    res.status(201).send("User created");
-  } catch (error) {
-    res.status(500).send("Server error:", error);
-  }
-});
-
-authRouter.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-
-    const user = await db.collection("users").findOne({ email });
-
-    if (!user) {
-      return res.status(404).send("User not found");
-    }
-
-    if (user && bcrypt.compareSync(password, user.password)) {
-      const token = uuid();
-      await db.collection("sessions").insertOne({ token, userId: user._id });
-      return res.send({ token, name: user.name });
-    } else {
-      return res.sendStatus(401);
-    }
-  } catch (error) {
-    console.log("Login error:", error);
-    return res.sendStatus(500);
-  }
-});
-
-authRouter.get("/logout", async (req, res) => {});
+authRouter.get("/logout", Logout);
 
 export default authRouter;
