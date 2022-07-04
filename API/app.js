@@ -3,8 +3,8 @@ import chalk from "chalk";
 import dotenv from "dotenv";
 import cors from "cors";
 
-import authRouter from ".routes/authRouter.js";
-import balanceRouter from ".routes/balanceRouter.js";
+import balanceRouter from "./routes/balanceRouter.js";
+import authRouter from "./routes/authRouter.js";
 
 dotenv.config();
 
