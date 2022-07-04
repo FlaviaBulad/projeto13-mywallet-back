@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import db from "../db.js";
 import joi from "joi";
 
-export async function getbalance(req, res) {
+export async function getBalance(req, res) {
   const { user } = res.locals;
   try {
     const balance = await db

@@ -3,7 +3,7 @@ import { Login, Logout, signUp } from "../controllers/authController.js";
 import {
   validateSignIn,
   validateSignUp,
-} from "../middlewares/validateAuthMiddleware.js";
+} from "../middlewares/validadeAuthMiddleware.js";
 
 const authRouter = Router();
 
