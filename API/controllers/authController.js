@@ -3,7 +3,6 @@ import bcrypt from "bcrypt";
 import joi from "joi";
 import { v4 as uuid } from "uuid";
 import db from "./../db.js";
-import { signUp } from "../controllers/authController.js";
 
 export async function signUp(req, res) {
   const user = req.body;
@@ -68,4 +67,18 @@ export async function Login(req, res) {
   }
 }
 
-export async function Logout(req, res) {}
+export async function Logout(req, res) {
+  const { authorization } = req.headers;
+
+  const token = authorization?.replace("Bearer", "").trim();
+
+  if (!token) return res.send(403);
+
+  try {
+    await db.collection("sessions").deleteOne({ token });
+    res.sendStatus(200);
+  } catch (error) {
+    console.log("Logout error:", error);
+    return res.sendStatus(500);
+  }
+}
