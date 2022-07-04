@@ -4,7 +4,7 @@ import chalk from "chalk";
 
 dotenv.config();
 
-const MONGO_URI = process.env.MONGODB_URI;
+const MONGO_URI = process.env.MONGO_URI;
 
 let db;
 const mongoClient = new MongoClient(MONGO_URI);

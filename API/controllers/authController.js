@@ -5,28 +5,6 @@ import db from "../../db.js";
 
 export async function signUp(req, res) {
   const user = req.body;
-
-  const signupSchema = joi.object({
-    name: joi.string().min(1).required(),
-    email: joi.string().email().required(),
-    password: joi.string().min(3).max(15).required().label("Password"),
-    password_confirmation: joi
-      .any()
-      .equal(joi.ref("password"))
-      .required()
-      .label("Confirm password")
-      .options({ messages: { "any.only": "{{#label}} does not match" } }),
-  });
-
-  const validation = signupSchema.validate(user, {
-    abortEarly: false,
-  });
-
-  if (validation.error) {
-    console.log(validation.error.details);
-    return res.sendStatus(422);
-  }
-
   try {
     const salt = 10;
     const passwordHash = bcrypt.hashSync(user.password, salt);
