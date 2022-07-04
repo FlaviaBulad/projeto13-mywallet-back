@@ -1,15 +1,12 @@
 import { Router } from "express";
-import bcrypt from "bcrypt";
-import joi from "joi";
-import { v4 as uuid } from "uuid";
-import db from "./../db.js";
+
+import { userSession } from "./../middlewares/authMiddleware.js";
 
 const balanceRouter = Router();
+balanceRouter.use(userSession);
 
-balanceRouter.get("/balance", async (req, res) => {
-  res.sendStatus(200);
-});
+balanceRouter.get("/balance", async(req, res));
 
-balanceRouter.post("/income", async (req, res) => {});
+balanceRouter.post("/balance", async(req, res));
 
-balanceRouter.post("/expenses", async (req, res) => {});
+export default balanceRouter;

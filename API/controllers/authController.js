@@ -1,4 +1,3 @@
-import { Router } from "express";
 import bcrypt from "bcrypt";
 import joi from "joi";
 import { v4 as uuid } from "uuid";
